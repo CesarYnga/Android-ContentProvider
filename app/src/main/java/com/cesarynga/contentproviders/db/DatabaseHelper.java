@@ -4,7 +4,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-public class DatabaseHelper extends SQLiteOpenHelper {
+public final class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DB_NAME = "tasks_list.db";
     private static final int DB_VERSION = 1;
