@@ -41,7 +41,11 @@ public final class TaskProvider extends ContentProvider {
                 if (TextUtils.isEmpty(sortOrder)) sortOrder = "_ID ASC";
                 break;
             case TASK_ID:
-                selection = selection + TaskContract.Task._ID + " = " + uri.getLastPathSegment();
+                if (TextUtils.isEmpty(selection)) {
+                    selection = TaskContract.Task._ID + " = " + uri.getLastPathSegment();
+                } else {
+                    selection += " AND " + TaskContract.Task._ID + " = " + uri.getLastPathSegment();
+                }
                 break;
             default:
                 throw new UnsupportedOperationException("Unkown uri: " + uri);
@@ -54,8 +58,6 @@ public final class TaskProvider extends ContentProvider {
                 null,
                 null,
                 sortOrder);
-
-        db.close();
 
         return cursor;
     }
@@ -98,7 +100,11 @@ public final class TaskProvider extends ContentProvider {
                 deletedRows = db.delete(TaskContract.Task.TABLE_NAME, selection, selectionArgs);
                 break;
             case TASK_ID:
-                selection = selection + TaskContract.Task._ID + " = " + uri.getLastPathSegment();
+                if (TextUtils.isEmpty(selection)) {
+                    selection = TaskContract.Task._ID + " = " + uri.getLastPathSegment();
+                } else {
+                    selection += " AND " + TaskContract.Task._ID + " = " + uri.getLastPathSegment();
+                }
                 deletedRows = db.delete(TaskContract.Task.TABLE_NAME, selection, selectionArgs);
                 break;
             default:
@@ -116,7 +122,11 @@ public final class TaskProvider extends ContentProvider {
                 updatedRows = db.update(TaskContract.Task.TABLE_NAME, values, selection, selectionArgs);
                 break;
             case TASK_ID:
-                selection = selection + TaskContract.Task._ID + " = " + uri.getLastPathSegment();
+                if (TextUtils.isEmpty(selection)) {
+                    selection = TaskContract.Task._ID + " = " + uri.getLastPathSegment();
+                } else {
+                    selection += " AND " + TaskContract.Task._ID + " = " + uri.getLastPathSegment();
+                }
                 updatedRows = db.update(TaskContract.Task.TABLE_NAME, values, selection, selectionArgs);
                 break;
             default:
