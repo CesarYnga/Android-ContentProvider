@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -25,6 +26,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.OnItemClick;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -42,6 +44,8 @@ public class MainActivity extends AppCompatActivity {
     private ArrayAdapter<Task> adapter;
     private List<Task> taskList = new ArrayList<>();
 
+    private long selectedId = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,11 +57,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initUi() {
-        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, taskList);
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_activated_1, taskList);
         listView.setAdapter(adapter);
+        listView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
     }
 
     private void renderTaskInView() {
+        selectedId = 0;
+        listView.clearChoices();
         taskList.clear();
         taskList.addAll(getTaskList());
         adapter.notifyDataSetChanged();
@@ -86,12 +93,25 @@ public class MainActivity extends AppCompatActivity {
 
     @OnClick(R.id.btn_insert_task)
     public void onInsertButtonClick() {
-        ContentValues values = new ContentValues();
+        ContentValues values = getContentValues();
 
-        values.put(TaskContract.Task.COLUMN_NAME_TITLE, edtTaskTitle.getText().toString());
-        values.put(TaskContract.Task.COLUMN_NAME_DATE_TIME, edtTaskDate.getText().toString()
-                + " " + edtTaskTime.getText().toString());
         insert(values);
+
+        renderTaskInView();
+    }
+
+    @OnClick(R.id.btn_update_task)
+    public void onUpdateButtonClick() {
+        ContentValues values = getContentValues();
+
+        update(selectedId, values);
+
+        renderTaskInView();
+    }
+
+    @OnClick(R.id.btn_delete_task)
+    public void onDeleteButtonClick() {
+        delete(selectedId);
 
         renderTaskInView();
     }
@@ -120,6 +140,23 @@ public class MainActivity extends AppCompatActivity {
         timePickerDialog.show();
     }
 
+    @OnItemClick(R.id.list_view)
+    public void onTaskClick(int position) {
+        Task task = taskList.get(position);
+        edtTaskTitle.setText(task.title);
+        edtTaskDate.setText(task.dateTime.substring(0, 10));
+        edtTaskTime.setText(task.dateTime.substring(10));
+        selectedId = task.id;
+    }
+
+    private ContentValues getContentValues() {
+        ContentValues values = new ContentValues();
+        values.put(TaskContract.Task.COLUMN_NAME_TITLE, edtTaskTitle.getText().toString());
+        values.put(TaskContract.Task.COLUMN_NAME_DATE_TIME, edtTaskDate.getText().toString()
+                + " " + edtTaskTime.getText().toString());
+        return values;
+    }
+
     private Cursor query() {
         ContentResolver cr = getContentResolver();
         String[] projection = new String[]{
@@ -139,13 +176,21 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void update() {
-        ContentResolver cr = getContentResolver();
-        Uri uri = TaskContract.Task.CONTENT_URI.buildUpon().appendPath(String.valueOf(1)).build();
-        ContentValues values = new ContentValues();
-        values.put(TaskContract.Task.COLUMN_NAME_TITLE, "Work updated");
-        values.put(TaskContract.Task.COLUMN_NAME_DATE_TIME, "2017-04-28 08:00:00.000");
-        int updatedRows = cr.update(uri, values, null, null);
-        Log.i(TAG, "Updated rows: " + updatedRows);
+    private void update(long id, ContentValues values) {
+        if (id > 0) {
+            ContentResolver cr = getContentResolver();
+            Uri uri = TaskContract.Task.CONTENT_URI.buildUpon().appendPath(String.valueOf(id)).build();
+            int updatedRows = cr.update(uri, values, null, null);
+            Log.i(TAG, "Updated rows: " + updatedRows);
+        }
+    }
+
+    private void delete(long id) {
+        if (id > 0) {
+            ContentResolver cr = getContentResolver();
+            Uri uri = TaskContract.Task.CONTENT_URI.buildUpon().appendPath(String.valueOf(id)).build();
+            int updatedRows = cr.delete(uri, null, null);
+            Log.i(TAG, "Deleted rows: " + updatedRows);
+        }
     }
 }
