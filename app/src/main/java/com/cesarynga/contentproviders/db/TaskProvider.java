@@ -35,7 +35,6 @@ public final class TaskProvider extends ContentProvider {
     @Override
     public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder) {
         final SQLiteDatabase db = databaseHelper.getReadableDatabase();
-        Cursor cursor;
         switch (uriMatcher.match(uri)) {
             case TASKS:
                 if (TextUtils.isEmpty(sortOrder)) sortOrder = "_ID ASC";
@@ -48,18 +47,16 @@ public final class TaskProvider extends ContentProvider {
                 }
                 break;
             default:
-                throw new UnsupportedOperationException("Unkown uri: " + uri);
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
 
-        cursor = db.query(TaskContract.Task.TABLE_NAME,
+        return db.query(TaskContract.Task.TABLE_NAME,
                 projection,
                 selection,
                 selectionArgs,
                 null,
                 null,
                 sortOrder);
-
-        return cursor;
     }
 
     @Nullable
@@ -71,7 +68,7 @@ public final class TaskProvider extends ContentProvider {
             case TASK_ID:
                 return TaskContract.Task.CONTENT_ITEM_TYPE;
             default:
-                throw new UnsupportedOperationException("Unkown uri: " + uri);
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
     }
 
@@ -85,7 +82,7 @@ public final class TaskProvider extends ContentProvider {
                 id = db.insert(TaskContract.Task.TABLE_NAME, null, values);
                 break;
             default:
-                throw new UnsupportedOperationException("Unkown uri: " + uri);
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
 
         return ContentUris.withAppendedId(uri, id);
@@ -108,7 +105,7 @@ public final class TaskProvider extends ContentProvider {
                 deletedRows = db.delete(TaskContract.Task.TABLE_NAME, selection, selectionArgs);
                 break;
             default:
-                throw new UnsupportedOperationException("Unkown uri: " + uri);
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
         return deletedRows;
     }
@@ -130,7 +127,7 @@ public final class TaskProvider extends ContentProvider {
                 updatedRows = db.update(TaskContract.Task.TABLE_NAME, values, selection, selectionArgs);
                 break;
             default:
-                throw new UnsupportedOperationException("Unkown uri: " + uri);
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
         return updatedRows;
     }

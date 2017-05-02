@@ -19,8 +19,8 @@ public final class TaskContract {
 
         public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_TASK).build();
         public static final String CONTENT_TYPE =
-                "vnd.android.cursor.dir/" + CONTENT_URI  + "/" + PATH_TASK;
+                "vnd.android.cursor.dir/vnd" + CONTENT_AUTHORITY  + "." + PATH_TASK;
         public static final String CONTENT_ITEM_TYPE =
-                "vnd.android.cursor.item/" + CONTENT_URI + "/" + PATH_TASK;
+                "vnd.android.cursor.item/vnd" + CONTENT_AUTHORITY + "." + PATH_TASK;
     }
 }
